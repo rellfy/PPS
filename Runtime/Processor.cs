@@ -17,7 +17,7 @@ namespace PPS {
         private bool isProcessing;
         protected TSystem system;
         protected TProfile profile;
-        protected List<Processor<TSystem, TProfile>> subProcessors = new List<Processor<TSystem, TProfile>>();
+        protected List<Processor> subProcessors = new List<Processor>();
 
         public event EventHandler OnProcessingStart;
         public event EventHandler OnProcessingEnd;
@@ -39,7 +39,7 @@ namespace PPS {
         protected virtual void Process() { }
 
         public override void Update() {
-            foreach (Processor<TSystem, TProfile> subProcessor in this.subProcessors) {
+            foreach (Processor subProcessor in this.subProcessors) {
                 subProcessor.Update();
             }
 
@@ -48,7 +48,7 @@ namespace PPS {
         }
 
         public override void FixedUpdate() {
-            foreach (Processor<TSystem, TProfile> subProcessor in this.subProcessors) {
+            foreach (Processor subProcessor in this.subProcessors) {
                 subProcessor.FixedUpdate();
             }
 
