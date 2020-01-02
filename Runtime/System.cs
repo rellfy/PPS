@@ -91,14 +91,14 @@ namespace PPS {
             string instanceName = $"{GetType().Name} instance #{this.instances.Count + 1}";
             TProcessor processor = System.DeployInstance<TProcessor, TProfile>(GetType(), this, this.instancePrefab, transform, instanceName);
             this.instances.Add(processor);
-            InstanceDeployed?.Invoke(this, null);
+            InstanceDeployed?.Invoke(processor, GetType());
 
             return processor;
         }
 
         public void RemoveInstance(Processor processor) {
             this.instances.Remove((TProcessor)processor);
-            InstanceRemoved?.Invoke(this, null);
+            InstanceRemoved?.Invoke(processor, GetType());
         }
 
         protected void DeploySubsystem<TSubsystem, TSProcessor, TSProfile>(ref TSubsystem subsystem)
@@ -228,14 +228,14 @@ namespace PPS {
             string instanceName = $"{GetType().Name} instance #{this.instances.Count + 1}";
             TProcessor processor = System.DeployInstance<TProcessor, TProfile>(GetType(), this, this.instancePrefab, transform, instanceName);
             this.instances.Add(processor);
-            InstanceDeployed?.Invoke(this, null);
+            InstanceDeployed?.Invoke(processor, GetType());
 
             return processor;
         }
 
         public void RemoveInstance(Processor processor) {
             this.instances.Remove((TProcessor)processor);
-            InstanceRemoved?.Invoke(this, null);
+            InstanceRemoved?.Invoke(processor, GetType());
         }
 
         public virtual void Update() {
