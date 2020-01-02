@@ -42,8 +42,9 @@ namespace PPS {
         protected virtual void Process() { }
 
         public override void Update() {
-            foreach (Processor subProcessor in this.subProcessors) {
-                subProcessor.Update();
+            // Reverse loop due to possible Processor disposal.
+            for (int i = this.subProcessors.Count; i-- > 0;) {
+                this.subProcessors[i].Update();
             }
 
             if (!ProcessOnFixedUpdate)
@@ -51,8 +52,9 @@ namespace PPS {
         }
 
         public override void FixedUpdate() {
-            foreach (Processor subProcessor in this.subProcessors) {
-                subProcessor.FixedUpdate();
+            // Reverse loop due to possible Processor disposal.
+            for (int i = this.subProcessors.Count; i-- > 0;) {
+                this.subProcessors[i].FixedUpdate();
             }
 
             if (ProcessOnFixedUpdate)
@@ -60,8 +62,9 @@ namespace PPS {
         }
 
         public override void LateUpdate() {
-            foreach (Processor subProcessor in this.subProcessors) {
-                subProcessor.LateUpdate();
+            // Reverse loop due to possible Processor disposal.
+            for (int i = this.subProcessors.Count; i-- > 0;) {
+                this.subProcessors[i].LateUpdate();
             }
         }
 
@@ -93,7 +96,13 @@ namespace PPS {
                 return;
 
             this.system.RemoveInstance(this);
-            UnityEngine.Object.DestroyImmediate(this.profile.GameObject);
+
+            if (this.profile.GameObject != null)
+                UnityEngine.Object.DestroyImmediate(this.profile.GameObject);
+
+            foreach (IDisposable subProcessor in this.subProcessors)
+                subProcessor.Dispose();
+
             this.isDisposed = true;
         }
     }

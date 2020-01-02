@@ -119,8 +119,9 @@ namespace PPS {
         }
 
         public virtual void Update() {
-            foreach (TProcessor instance in this.instances) {
-                instance.Update();
+            // Reverse loop due to possible Processor disposal.
+            for (int i = this.instances.Count; i-- > 0;) {
+                this.instances[i].Update();
             }
 
             foreach (ISystem subsystem in this.subsystems) {
@@ -129,8 +130,9 @@ namespace PPS {
         }
 
         public virtual void FixedUpdate() {
-            foreach (TProcessor instance in this.instances) {
-                instance.FixedUpdate();
+            // Reverse loop due to possible Processor disposal.
+            for (int i = this.instances.Count; i-- > 0;) {
+                this.instances[i].FixedUpdate();
             }
 
             foreach (ISystem subsystem in this.subsystems) {
@@ -139,8 +141,9 @@ namespace PPS {
         }
 
         public virtual void LateUpdate() {
-            foreach (TProcessor instance in this.instances) {
-                instance.LateUpdate();
+            // Reverse loop due to possible Processor disposal.
+            for (int i = this.instances.Count; i-- > 0;) {
+                this.instances[i].LateUpdate();
             }
 
             foreach (ISystem subsystem in this.subsystems) {
@@ -239,20 +242,23 @@ namespace PPS {
         }
 
         public virtual void Update() {
-            foreach (TProcessor instance in this.instances) {
-                instance.Update();
+            // Reverse loop due to possible Processor disposal.
+            for (int i = this.instances.Count; i-- > 0;) {
+                this.instances[i].Update();
             }
         }
 
         public virtual void FixedUpdate() {
-            foreach (TProcessor instance in this.instances) {
-                instance.FixedUpdate();
+            // Reverse loop due to possible Processor disposal.
+            for (int i = this.instances.Count; i-- > 0;) {
+                this.instances[i].FixedUpdate();
             }
         }
 
         public virtual void LateUpdate() {
-            foreach (TProcessor instance in this.instances) {
-                instance.LateUpdate();
+            // Reverse loop due to possible Processor disposal.
+            for (int i = this.instances.Count; i-- > 0;) {
+                this.instances[i].LateUpdate();
             }
         }
     }
