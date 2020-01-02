@@ -54,8 +54,8 @@ public static class SystemScriptFactory {
                 "    /// Subsystems are serialized, therefore they are initialised through Awake." +
                 "\n" +
                 "    /// </summary>\n" +
-                "    public override void Awake(Transform transform) {\n" +
-                "        base.Awake(transform);\n" +
+                "    public override void Awake(Transform transform, ISystem parent) {\n" +
+                "        base.Awake(transform, parent);\n" +
                 "    }\n" +
                 "\n" +
                 "    /// <summary>\n" +

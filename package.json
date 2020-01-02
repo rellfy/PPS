@@ -1,7 +1,7 @@
 {
   "name": "com.nioel.pps",
   "displayName": "PPS",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "unity": "2019.1",
   "description": "Processor-Profile System: Architectural pattern for Unity",
   "keywords": [

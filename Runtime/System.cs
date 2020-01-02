@@ -102,7 +102,7 @@ namespace PPS {
             subsystem.transform = new GameObject(subsystem.GetType().Name).transform;
             subsystem.transform.parent = transform;
             this.subsystems.Add(subsystem);
-            subsystem.Awake(subsystem.transform);
+            subsystem.Awake(subsystem.transform, this);
         }
 
         public virtual void Update() {
@@ -159,11 +159,13 @@ namespace PPS {
         private GameObject instancePrefab;
         [SerializeField]
         private readonly ScriptableObject constants;
+        private ISystem parent;
         protected readonly List<TProcessor> instances = new List<TProcessor>();
 
         public Transform transform { get; set; }
         public List<TProcessor> Instances => this.instances;
         public ScriptableObject Constants => this.constants;
+        public ISystem Parent => this.parent;
         Processor ISystem.DeployInstance => DeployInstance();
 
 
@@ -181,8 +183,9 @@ namespace PPS {
         /// Subsystems are initialised through the Awake method as they are serialized.
         /// </summary>
         /// <param name="transform"></param>
-        public virtual void Awake(Transform transform) {
+        public virtual void Awake(Transform transform, ISystem parent) {
             this.transform = transform;
+            this.parent = parent;
 
             InstanceDeployed += UpdateSerializableInstances;
             InstanceRemoved += UpdateSerializableInstances;
