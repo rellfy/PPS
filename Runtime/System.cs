@@ -4,18 +4,13 @@ using UnityEngine;
 
 namespace PPS {
 
-    // TODO: Add all MonoBehaviour messages: https://docs.unity3d.com/ScriptReference/MonoBehaviour.html
-    public interface ISystem {
-
-        void Update();
-        void FixedUpdate();
-        void LateUpdate();
-        void RemoveInstance(Processor processor);
+    public interface ISystem : IProcessor {
         bool IsReady { get; }
         Processor DeployInstance { get; }
         event EventHandler<Type> InstanceDeployed;
         event EventHandler<Type> InstanceRemoved;
         event EventHandler Ready;
+        void RemoveInstance(Processor processor);
     }
 
     internal static class System {

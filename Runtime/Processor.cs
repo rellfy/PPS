@@ -5,8 +5,14 @@ using Object = System.Object;
 
 namespace PPS {
 
-    public abstract class Processor {
+    // TODO: Add all MonoBehaviour messages: https://docs.unity3d.com/ScriptReference/MonoBehaviour.html
+    public interface IProcessor {
+        void Update();
+        void FixedUpdate();
+        void LateUpdate();
+    }
 
+    public abstract class Processor {
         public abstract void Update();
         public abstract void FixedUpdate();
         public abstract void LateUpdate();
@@ -86,7 +92,7 @@ namespace PPS {
             Process();
         }
 
-        public void Dispose() {
+        public virtual void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
