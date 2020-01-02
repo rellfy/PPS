@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Object = System.Object;
 
 namespace PPS {
 
@@ -11,10 +12,11 @@ namespace PPS {
         public abstract void LateUpdate();
     }
 
-    public abstract class Processor<TSystem, TProfile> : Processor
+    public abstract class Processor<TSystem, TProfile> : Processor, IDisposable
     where TSystem : ISystem
     where TProfile : Profile {
 
+        private bool isDisposed;
         private bool isProcessing;
         protected TSystem system;
         protected TProfile profile;
@@ -31,6 +33,10 @@ namespace PPS {
         protected Processor(TSystem system,  TProfile profile) {
             this.system = system;
             this.profile = profile;
+        }
+
+        ~Processor() {
+            Dispose(false);
         }
 
         protected virtual void Process() { }
@@ -75,6 +81,20 @@ namespace PPS {
             }
 
             Process();
+        }
+
+        public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool isDisposing) {
+            if (this.isDisposed || !isDisposing)
+                return;
+
+            this.system.RemoveInstance(this);
+            UnityEngine.Object.DestroyImmediate(this.profile.GameObject);
+            this.isDisposed = true;
         }
     }
 }
