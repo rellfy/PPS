@@ -8,6 +8,7 @@ namespace PPS {
 
         public abstract void Update();
         public abstract void FixedUpdate();
+        public abstract void LateUpdate();
     }
 
     public abstract class Processor<TSystem, TProfile> : Processor
@@ -23,6 +24,7 @@ namespace PPS {
         public event EventHandler OnProcessingEnd;
 
         public TProfile Profile => this.profile;
+        public TSystem System => this.system;
         protected virtual bool ProcessOnFixedUpdate => false;
         protected virtual bool ShouldProcess => true;
 
@@ -30,11 +32,6 @@ namespace PPS {
             this.system = system;
             this.profile = profile;
         }
-
-        /// <summary>
-        /// Method called once all subsystems have been initialised.
-        /// </summary>
-        protected virtual void Start() { }
 
         protected virtual void Process() { }
 
@@ -54,6 +51,12 @@ namespace PPS {
 
             if (ProcessOnFixedUpdate)
                 TryProcess();
+        }
+
+        public override void LateUpdate() {
+            foreach (Processor subProcessor in this.subProcessors) {
+                subProcessor.LateUpdate();
+            }
         }
 
         private void TryProcess() {

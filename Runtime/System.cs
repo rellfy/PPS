@@ -4,10 +4,12 @@ using UnityEngine;
 
 namespace PPS {
 
+    // TODO: Add all MonoBehaviour messages: https://docs.unity3d.com/ScriptReference/MonoBehaviour.html
     public interface ISystem {
 
         void Update();
         void FixedUpdate();
+        void LateUpdate();
         void RemoveInstance(Processor processor);
         Processor DeployInstance { get; }
         event EventHandler<Type> InstanceDeployed;
@@ -21,6 +23,9 @@ namespace PPS {
         where TProfile : Profile {
             GameObject instance = prefab != null ? UnityEngine.Object.Instantiate(prefab, parent) : new GameObject();
             instance.name = instanceName;
+
+            if (prefab == null)
+                instance.transform.parent = parent;
 
             Type[] profileConstructorTypes = { typeof(GameObject) };
             object[] profileConstructorParams = { instance };
@@ -125,6 +130,16 @@ namespace PPS {
             }
         }
 
+        public virtual void LateUpdate() {
+            foreach (TProcessor instance in this.instances) {
+                instance.LateUpdate();
+            }
+
+            foreach (ISystem subsystem in this.subsystems) {
+                subsystem.LateUpdate();
+            }
+        }
+
         protected List<TSystem> GetSubsystemInstances<TSystem>()
         where TSystem : ISystem {
             List<TSystem> converted = new List<TSystem>();
@@ -168,7 +183,6 @@ namespace PPS {
         public ISystem Parent => this.parent;
         Processor ISystem.DeployInstance => DeployInstance();
 
-
         public event EventHandler<Type> InstanceDeployed;
         public event EventHandler<Type> InstanceRemoved;
 
@@ -182,7 +196,6 @@ namespace PPS {
         /// <summary>
         /// Subsystems are initialised through the Awake method as they are serialized.
         /// </summary>
-        /// <param name="transform"></param>
         public virtual void Awake(Transform transform, ISystem parent) {
             this.transform = transform;
             this.parent = parent;
@@ -220,6 +233,12 @@ namespace PPS {
         public virtual void FixedUpdate() {
             foreach (TProcessor instance in this.instances) {
                 instance.FixedUpdate();
+            }
+        }
+
+        public virtual void LateUpdate() {
+            foreach (TProcessor instance in this.instances) {
+                instance.LateUpdate();
             }
         }
     }
