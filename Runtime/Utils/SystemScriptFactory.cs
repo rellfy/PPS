@@ -48,7 +48,7 @@ public static class SystemScriptFactory {
                 "    /// Serializable instance list.\n" +
                 "    /// </summary>\n" +
                 "    [SerializeField]\n" +
-                "    private List<NewProcessor> instances;\n" +
+                "    private List<NewProcessor> newProcessorList;\n" +
                 "\n" +
                 "    /// <summary>\n" +
                 "    /// Subsystems are serialized, therefore they are initialised through Awake." +
@@ -63,7 +63,7 @@ public static class SystemScriptFactory {
                 "    /// to the specific type that we want to serialize here.\n" +
                 "    /// </summary>\n" +
                 "    protected override void UpdateSerializableInstances(object sender, Type instanceType) {\n" +
-                "        this.instances = this.instances.ToList();\n" +
+                "        this.newProcessorList = this.instances;\n" +
                 "    }\n" +
                 "}"
                 :

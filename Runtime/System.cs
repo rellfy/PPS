@@ -11,9 +11,11 @@ namespace PPS {
         void FixedUpdate();
         void LateUpdate();
         void RemoveInstance(Processor processor);
+        bool IsReady { get; }
         Processor DeployInstance { get; }
         event EventHandler<Type> InstanceDeployed;
         event EventHandler<Type> InstanceRemoved;
+        event EventHandler Ready;
     }
 
     internal static class System {
@@ -49,6 +51,7 @@ namespace PPS {
 
         [SerializeField]
         private bool deployOnStartup;
+        private bool isReady;
         [SerializeField]
         private GameObject instancePrefab;
         [SerializeField]
@@ -56,11 +59,13 @@ namespace PPS {
         protected List<TProcessor> instances = new List<TProcessor>();
         private List<ISystem> subsystems = new List<ISystem>();
 
+        public bool IsReady => this.isReady;
         public ScriptableObject Constants => this.constants;
         Processor ISystem.DeployInstance => DeployInstance();
 
         public event EventHandler<Type> InstanceDeployed;
         public event EventHandler<Type> InstanceRemoved;
+        public event EventHandler Ready;
 
         public virtual void Awake() {
             InstanceDeployed += UpdateSerializableInstances;
@@ -70,6 +75,9 @@ namespace PPS {
 
             if (this.deployOnStartup && this.instances.Count == 0)
                 DeployInstance();
+
+            this.isReady = true;
+            Ready?.Invoke(this, null);
         }
 
         /// <summary>
@@ -170,6 +178,7 @@ namespace PPS {
 
         [SerializeField]
         private bool deployOnStartup;
+        private bool isReady;
         [SerializeField]
         private GameObject instancePrefab;
         [SerializeField]
@@ -177,6 +186,7 @@ namespace PPS {
         private ISystem parent;
         protected readonly List<TProcessor> instances = new List<TProcessor>();
 
+        public bool IsReady => this.isReady;
         public Transform transform { get; set; }
         public List<TProcessor> Instances => this.instances;
         public ScriptableObject Constants => this.constants;
@@ -185,6 +195,7 @@ namespace PPS {
 
         public event EventHandler<Type> InstanceDeployed;
         public event EventHandler<Type> InstanceRemoved;
+        public event EventHandler Ready;
 
         protected Subsystem() { }
 
@@ -205,6 +216,9 @@ namespace PPS {
 
             if (this.deployOnStartup && this.instances.Count == 0)
                 DeployInstance();
+
+            this.isReady = true;
+            Ready?.Invoke(this, null);
         }
 
         public TProcessor DeployInstance() {
