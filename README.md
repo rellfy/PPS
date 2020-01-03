@@ -3,6 +3,13 @@ Processor-Profile System: software architecture pattern for Unity
 
 ![banner](https://media.discordapp.net/attachments/607007438180450305/662457107634847777/unknown.png)
 
+## How to install
+You can install PPS through the Unity Package Manager (UPM):
+
+1. Window -> Package Manager
+2. \+ (Add package button) -> Add Package from git URL
+3. Use the URL `https://github.com/rellfy/PPS.git`
+
 ## Architecture
 
 The Processor-Profile System, or PPS, is an architectural software pattern designed to be implemented in Unity projects. The main goal is to reduce MonoBehaviour script usage in favour of a conceptually simpler, faster and more structured codebase which will favour development efficiency and project management.
