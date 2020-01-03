@@ -1,6 +1,8 @@
 # PPS
 Processor-Profile System: software architecture pattern for Unity
 
+![banner](https://media.discordapp.net/attachments/607007438180450305/662457107634847777/unknown.png)
+
 ## Architecture
 
 The Processor-Profile System, or PPS, is an architectural software pattern designed to be implemented in Unity projects. The main goal is to reduce MonoBehaviour script usage in favour of a conceptually simpler, faster and more structured codebase which will favour development efficiency and project management.
@@ -21,4 +23,4 @@ A processor handles the instance's logic by managing the instance's state throug
 
 ## Implementation
 
-An example project is to be included which will demonstrate an usage of this architectural pattern.
+Check out the [example project](https://github.com/rellfy/PPSDemo.git) which features a simple but fully working game with UI, Audio and World Systems.
