@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -149,3 +150,4 @@ public static class SystemScriptFactory {
         return Path.GetFullPath(Path.Combine(CurrentPath, relative));
     }
 }
+#endif
