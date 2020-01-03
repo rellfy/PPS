@@ -1,5 +1,5 @@
-# PPS
-Processor-Profile System: software architecture pattern for Unity
+# Processor-Profile System
+### Architecture Pattern for Unity
 
 ![banner](https://media.discordapp.net/attachments/607007438180450305/662457107634847777/unknown.png)
 
