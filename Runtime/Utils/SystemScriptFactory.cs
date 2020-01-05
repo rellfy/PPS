@@ -38,78 +38,101 @@ public static class SystemScriptFactory {
                 ? 
                 "using System;\n" +
                 "using System.Collections.Generic;\n" +
-                "using System.Linq;\n" +
-                "using UnityEngine;\nu" +
-                "sing PPS;\n" +
+                "using UnityEngine;\n" +
+                "using PPS;\n" +
                 "\n" +
-                "[Serializable]\n" +
-                "public class NewSubsystem : Subsystem<NewProcessor, NewProfile> {\n" +
+                "namespace SomeNamespace {\n" +
                 "\n" +
-                "    /// <summary>\n" +
-                "    /// Serializable instance list.\n" +
-                "    /// </summary>\n" +
-                "    [SerializeField]\n" +
-                "    private List<NewProcessor> newProcessorList;\n" +
+                "    [Serializable]\n" +
+                "    public class NewSubsystem : Subsystem<NewProcessor, NewProfile> {\n" +
                 "\n" +
-                "    /// <summary>\n" +
-                "    /// Subsystems are serialized, therefore they are initialised through Awake." +
+                "        /// <summary>\n" +
+                "        /// Serializable instance list.\n" +
+                "        /// </summary>\n" +
+                "        [SerializeField]\n" +
+                "        private List<NewProcessor> newProcessorList;\n" +
                 "\n" +
-                "    /// </summary>\n" +
-                "    public override void Awake(Transform transform, ISystem parent) {\n" +
-                "        base.Awake(transform, parent);\n" +
-                "    }\n" +
+                "        /// <summary>\n" +
+                "        /// Subsystems are serialized, therefore they are initialised through Awake." +
                 "\n" +
-                "    /// <summary>\n" +
-                "    /// Unity 2019 does not serialize generics. For that reason, we convert the generic\n" +
-                "    /// to the specific type that we want to serialize here.\n" +
-                "    /// </summary>\n" +
-                "    protected override void UpdateSerializableInstances(object sender, Type instanceType) {\n" +
-                "        this.newProcessorList = this.instances;\n" +
+                "        /// </summary>\n" +
+                "        public override void Awake(Transform transform, ISystem parent) {\n" +
+                "            base.Awake(transform, parent);\n" +
+                "        }\n" +
+                "\n" +
+                "        /// <summary>\n" +
+                "        /// Unity 2019 does not serialize generics. For that reason, we convert the generic\n" +
+                "        /// to the specific type that we want to serialize here.\n" +
+                "        /// </summary>\n" +
+                "        protected override void UpdateSerializableInstances(object sender, Type instanceType) {\n" +
+                "            this.newProcessorList = this.instances;\n" +
+                "        }\n" +
                 "    }\n" +
                 "}"
                 :
                 "using System;\n" +
                 "using System.Collections.Generic;\n" +
-                "using System.Linq;\n" +
                 "using UnityEngine;\n" +
                 "using PPS;\n" +
                 "\n" +
-                "[Serializable]\n" +
-                "public class NewSystem : System<NewProcessor, NewProfile> {\n" +
-                "\n    /// <summary>\n" +
-                "    /// Serializable instance list.\n" +
-                "    /// </summary>\n" +
-                "    [SerializeField]\n" +
-                "    private List<NewProcessor> instances;\n" +
+                "namespace SomeNamespace { \n" +
                 "\n" +
-                "    public override void Awake() {\n" +
-                "        base.Awake();\n" +
-                "    }\n" +
+                "    [Serializable]\n" +
+                "    public class NewSystem : System<NewProcessor, NewProfile> {\n" +
                 "\n" +
-                "    /// <summary>\n" +
-                "    /// Unity 2019 does not serialize generics. For that reason, we convert the generic\n" +
-                "    /// to the specific type that we want to serialize here.\n" +
-                "    /// </summary>\n" +
-                "    protected override void UpdateSerializableInstances(object sender, Type instanceType) {\n " +
-                "       this.instances = this.instances.ToList();\n" +
+                "        /// <summary>\n" +
+                "        /// Serializable instance list.\n" +
+                "        /// </summary>\n" +
+                "        [SerializeField]\n" +
+                "        private List<NewProcessor> newProcessorList;\n" +
+                "\n" +
+                "        public override void Awake() {\n" +
+                "            base.Awake();\n" +
+                "        }\n" +
+                "\n" +
+                "        /// <summary>\n" +
+                "        /// Unity 2019 does not serialize generics. For that reason, we convert the generic\n" +
+                "        /// to the specific type that we want to serialize here.\n" +
+                "        /// </summary>\n" +
+                "        protected override void UpdateSerializableInstances(object sender, Type instanceType) {\n " +
+                "           this.newProcessorList = this.instances;\n" +
+                "        }\n" +
                 "    }\n" +
                 "}",
             processor = 
-                "using PPS;\n" +
-                "\n" +
-                "public class NewProcessor : Processor<"+systemName+", NewProfile> {\n" +
-                "\n" +
-                "    public NewProcessor("+systemName+" system, NewProfile profile) : base(system, profile) { }" +
-                "\n}",
-            profile =
                 "using System;\n" +
                 "using UnityEngine;\n" +
                 "using PPS;\n" +
                 "\n" +
-                "[Serializable]\n" +
-                "public class NewProfile : Profile {\n" +
+                "namespace SomeNamespace { \n" +
                 "\n" +
-                "    public NewProfile(GameObject gameObject) : base(gameObject) { }\n" +
+                "    [Serializable]\n" +
+                "    public class NewProcessor : Processor<" +systemName+", NewProfile> {\n" +
+                "\n" +
+                "        /// <summary>\n" +
+                "        /// Unity 2019 does not serialize generics. For that reason, we convert the generic\n" +
+                "        /// to the specific type that we want to serialize here.\n" +
+                "        /// </summary>\n" +
+                "        [SerializeField]\n" +
+                "        private NewProfile newProfile;\n" +
+                "\n" +
+                "        public NewProcessor(" + systemName+" system, NewProfile profile) : base(system, profile) {\n" +
+                "            this.newProfile = this.profile;\n" +
+                "        }\n" +
+                "    }\n" +
+                "}",
+            profile =
+                "using System;\n" + 
+                "using UnityEngine;\n" +
+                "using PPS;\n" +
+                "\n" +
+                "namespace SomeNamespace { \n" +
+                "\n" +
+                "    [Serializable]\n" +
+                "    public class NewProfile : Profile {\n" +
+                "\n" +
+                "        public NewProfile(GameObject gameObject) : base(gameObject) { }\n" +
+                "    }\n" +
                 "}"
         };
 
