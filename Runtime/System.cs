@@ -16,8 +16,8 @@ namespace PPS {
     internal static class System {
 
         public static TProcessor DeployInstance<TProcessor, TProfile>(Type systemType, ISystem system, GameObject prefab, Transform parent, string instanceName)
-        where TProcessor : Processor
-        where TProfile : Profile {
+            where TProcessor : Processor
+            where TProfile : Profile {
             GameObject instance = prefab != null ? UnityEngine.Object.Instantiate(prefab, parent) : null;
 
             if (prefab != null) {
@@ -32,6 +32,28 @@ namespace PPS {
             Type[] processorConstructorTypes = { systemType, typeof(TProfile) };
             object[] processorConstructorParams = { system, profile };
             TProcessor processor = typeof(TProcessor).GetConstructor(processorConstructorTypes)?.Invoke(processorConstructorParams) as TProcessor;
+
+            if (processor == null || profile == null)
+                throw new Exception("Could not instantiate the instance's Processor or Profile from type.");
+
+            return processor;
+        }
+
+        public static Processor DeployInstance(Type processorType, Type profileType, Type systemType, ISystem system, GameObject prefab, Transform parent, string instanceName) {
+            GameObject instance = prefab != null ? UnityEngine.Object.Instantiate(prefab, parent) : null;
+
+            if (prefab != null) {
+                instance.name = instanceName;
+                instance.transform.parent = parent;
+            }
+
+            Type[] profileConstructorTypes = { typeof(GameObject) };
+            object[] profileConstructorParams = { instance };
+            Profile profile = profileType.GetConstructor(profileConstructorTypes)?.Invoke(profileConstructorParams) as Profile;
+
+            Type[] processorConstructorTypes = { systemType, profileType };
+            object[] processorConstructorParams = { system, profile };
+            Processor processor = processorType.GetConstructor(processorConstructorTypes)?.Invoke(processorConstructorParams) as Processor;
 
             if (processor == null || profile == null)
                 throw new Exception("Could not instantiate the instance's Processor or Profile from type.");
@@ -232,18 +254,14 @@ namespace PPS {
             return processor;
         }
 
-        /// <summary>
-        /// Deploys an independent instance of different Processor and Profile types.
-        /// This instance is not added to the subsystem's instances list.
-        /// </summary>
-        public TOtherProcessor DeployIndependentInstance<TOtherProcessor, TOtherProfile>(GameObject instancePrefab = null)
-        where TOtherProcessor : Processor
-        where TOtherProfile : Profile {
+        public TProcessor DeployInstance(Type processorType, Type profileType, GameObject instancePrefab = null) {
             if (this.transform == null)
                 throw new InvalidOperationException($"Attempted to Deploy an instance of Subsystem {GetType().Name} before it has been initialised.");
 
-            string instanceName = $"{GetType().Name} independent instance";
-            TOtherProcessor processor = System.DeployInstance<TOtherProcessor, TOtherProfile>(GetType(), this, instancePrefab, transform, instanceName);
+            string instanceName = $"{GetType().Name} instance #{this.instances.Count + 1}";
+            TProcessor processor = (TProcessor)System.DeployInstance(processorType, profileType, GetType(), this, instancePrefab, transform, instanceName);
+            this.instances.Add(processor);
+            InstanceDeployed?.Invoke(processor, GetType());
 
             return processor;
         }
