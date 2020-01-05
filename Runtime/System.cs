@@ -232,6 +232,22 @@ namespace PPS {
             return processor;
         }
 
+        /// <summary>
+        /// Deploys an independent instance of different Processor and Profile types.
+        /// This instance is not added to the subsystem's instances list.
+        /// </summary>
+        public TOtherProcessor DeployIndependentInstance<TOtherProcessor, TOtherProfile>(GameObject instancePrefab = null)
+        where TOtherProcessor : Processor
+        where TOtherProfile : Profile {
+            if (this.transform == null)
+                throw new InvalidOperationException($"Attempted to Deploy an instance of Subsystem {GetType().Name} before it has been initialised.");
+
+            string instanceName = $"{GetType().Name} independent instance";
+            TOtherProcessor processor = System.DeployInstance<TOtherProcessor, TOtherProfile>(GetType(), this, instancePrefab, transform, instanceName);
+
+            return processor;
+        }
+
         public void RemoveInstance(Processor processor) {
             this.instances.Remove((TProcessor)processor);
             InstanceRemoved?.Invoke(processor, GetType());
