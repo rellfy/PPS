@@ -18,11 +18,12 @@ namespace PPS {
         public static TProcessor DeployInstance<TProcessor, TProfile>(Type systemType, ISystem system, GameObject prefab, Transform parent, string instanceName)
         where TProcessor : Processor
         where TProfile : Profile {
-            GameObject instance = prefab != null ? UnityEngine.Object.Instantiate(prefab, parent) : new GameObject();
-            instance.name = instanceName;
+            GameObject instance = prefab != null ? UnityEngine.Object.Instantiate(prefab, parent) : null;
 
-            if (prefab == null)
+            if (prefab != null) {
+                instance.name = instanceName;
                 instance.transform.parent = parent;
+            }
 
             Type[] profileConstructorTypes = { typeof(GameObject) };
             object[] profileConstructorParams = { instance };
