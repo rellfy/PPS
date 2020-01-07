@@ -16,8 +16,8 @@ namespace PPS {
     internal static class System {
 
         public static TProcessor DeployInstance<TProcessor, TProfile>(Type systemType, ISystem system, GameObject prefab, Transform parent, string instanceName)
-            where TProcessor : Processor
-            where TProfile : Profile {
+        where TProcessor : Processor
+        where TProfile : Profile {
             GameObject instance = prefab != null ? UnityEngine.Object.Instantiate(prefab, parent) : null;
 
             if (prefab != null) {
