@@ -69,6 +69,10 @@ namespace PPS {
 
         [SerializeField]
         private bool deployOnStartup;
+        [SerializeField, Tooltip("Whether to automatically mark this System as ready during MonoBehaviour.Awake.\n\n" +
+                                 "If false it is required to manually set this System as ready, or its instances will " +
+                                 "not have Processor.Start invoked.")]
+        private bool readyOnStartup = true;
         private bool isReady;
         [SerializeField]
         private GameObject instancePrefab;
@@ -94,8 +98,17 @@ namespace PPS {
             if (this.deployOnStartup && this.instances.Count == 0)
                 DeployInstance();
 
+            if (this.readyOnStartup)
+                SetReady();
+        }
+
+        protected void SetReady() {
             this.isReady = true;
             Ready?.Invoke(this, null);
+
+            foreach (TProcessor processor in this.instances) {
+                processor.Start();
+            }
         }
 
         /// <summary>
@@ -109,6 +122,10 @@ namespace PPS {
             string instanceName = $"{GetType().Name} instance #{this.instances.Count + 1}";
             TProcessor processor = System.DeployInstance<TProcessor, TProfile>(GetType(), this, this.instancePrefab, transform, instanceName);
             this.instances.Add(processor);
+
+            if (this.isReady)
+                processor.Start();
+
             InstanceDeployed?.Invoke(processor, GetType());
 
             return processor;
@@ -199,6 +216,10 @@ namespace PPS {
 
         [SerializeField]
         private bool deployOnStartup;
+        [SerializeField, Tooltip("Whether to automatically mark this System as ready during MonoBehaviour.Awake.\n\n" +
+                                 "If false it is required to manually set this System as ready, or its instances will " +
+                                 "not have Processor.Start invoked.")]
+        private bool readyOnStartup = true;
         private bool isReady;
         [SerializeField]
         private GameObject instancePrefab;
@@ -238,8 +259,26 @@ namespace PPS {
             if (this.deployOnStartup && this.instances.Count == 0)
                 DeployInstance();
 
+            if (this.readyOnStartup)
+                StartReadyCheck();
+        }
+
+        private void StartReadyCheck() {
+            if (this.parent.IsReady) {
+                SetReady();
+                return;
+            }
+
+            this.parent.Ready += (sender, args) => { SetReady(); };
+        }
+
+        protected void SetReady() {
             this.isReady = true;
             Ready?.Invoke(this, null);
+
+            foreach (TProcessor processor in this.instances) {
+                processor.Start();
+            }
         }
 
         public TProcessor DeployInstance() {
@@ -249,6 +288,10 @@ namespace PPS {
             string instanceName = $"{GetType().Name} instance #{this.instances.Count + 1}";
             TProcessor processor = System.DeployInstance<TProcessor, TProfile>(GetType(), this, this.instancePrefab, transform, instanceName);
             this.instances.Add(processor);
+
+            if (this.isReady)
+                processor.Start();
+
             InstanceDeployed?.Invoke(processor, GetType());
 
             return processor;

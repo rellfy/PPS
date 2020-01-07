@@ -12,7 +12,8 @@ namespace PPS {
         void LateUpdate();
     }
 
-    public abstract class Processor {
+    public abstract class Processor : IProcessor {
+        public abstract void Start();
         public abstract void Update();
         public abstract void FixedUpdate();
         public abstract void LateUpdate();
@@ -46,6 +47,12 @@ namespace PPS {
         }
 
         protected virtual void Process() { }
+
+        /// <summary>
+        /// Processor.Start is called when its system has been fully initialised
+        /// in respect to subsystems and dependencies and is ready to operate.
+        /// </summary>
+        public override void Start() { }
 
         public override void Update() {
             // Reverse loop due to possible Processor disposal.
