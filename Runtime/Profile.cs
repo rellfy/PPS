@@ -11,6 +11,8 @@ namespace PPS {
         public virtual Transform Transform => this.gameObject.transform;
         public virtual GameObject GameObject => this.gameObject;
 
+        protected Profile() { }
+
         protected Profile(GameObject gameObject) {
             this.gameObject = gameObject;
         }
