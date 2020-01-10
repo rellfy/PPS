@@ -18,7 +18,7 @@ namespace PPS {
     public abstract class Processor : IProcessor {
 
         private bool isProcessing;
-        private List<Processor> subProcessors = new List<Processor>();
+        private readonly List<Processor> subProcessors = new List<Processor>();
 
         public event EventHandler OnProcessingStart;
         public event EventHandler OnProcessingEnd;
