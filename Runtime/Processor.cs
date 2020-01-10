@@ -133,5 +133,12 @@ namespace PPS {
         protected Processor(TSystem system, TProfile profile) : base(profile) {
             this.system = system;
         }
+
+        protected override void Dispose(bool isDisposing) {
+            base.Dispose(isDisposing);
+
+            if (isDisposing)
+                this.system.RemoveInstance(this);
+        }
     }
 }
