@@ -82,18 +82,22 @@ namespace PPS {
     }
 
     /// <summary>
-    /// A Processor which is linked to its Profile.
+    /// A Processor which is linked to its Profile and instantiating System.
     /// </summary>
-    public abstract class Processor<TProfile> : Processor
-        where TProfile : Profile {
+    public abstract class Processor<TSystem> : Processor, IDisposable
+    where TSystem : ISystem {
 
         private bool isDisposed;
-        private readonly TProfile profile;
+        private readonly TSystem system;
+        private readonly GameObject gameObject;
 
-        public TProfile Profile => this.profile;
+        public TSystem System => this.system;
+        public GameObject GameObject => this.gameObject;
+        public Transform Transform => this.gameObject.transform;
 
-        protected Processor(TProfile profile) {
-            this.profile = profile;
+        protected Processor(TSystem system, GameObject instance) {
+            this.gameObject = instance;
+            this.system = system;
         }
 
         ~Processor() {
@@ -109,36 +113,14 @@ namespace PPS {
             if (this.isDisposed || !isDisposing)
                 return;
 
-            if (this.profile.GameObject != null)
-                UnityEngine.Object.DestroyImmediate(this.profile.GameObject);
+            if (this.gameObject != null)
+                UnityEngine.Object.DestroyImmediate(this.gameObject);
 
             foreach (IDisposable subProcessor in SubProcessors)
                 subProcessor.Dispose();
 
+            this.system.RemoveInstance(this);
             this.isDisposed = true;
-        }
-    }
-
-    /// <summary>
-    /// A Processor which is linked to its Profile and instantiating System.
-    /// </summary>
-    public abstract class Processor<TSystem, TProfile> : Processor<TProfile>
-    where TSystem : ISystem
-    where TProfile : Profile {
-
-        private readonly TSystem system;
-
-        public TSystem System => this.system;
-
-        protected Processor(TSystem system, TProfile profile) : base(profile) {
-            this.system = system;
-        }
-
-        protected override void Dispose(bool isDisposing) {
-            base.Dispose(isDisposing);
-
-            if (isDisposing)
-                this.system.RemoveInstance(this);
         }
     }
 }

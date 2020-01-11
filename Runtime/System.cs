@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
 namespace PPS {
@@ -22,7 +23,8 @@ namespace PPS {
         /// <summary>
         /// Deploys a system instance.
         /// </summary>
-        public static Processor DeployInstance(Type processorType, Type profileType, Type systemType, ISystem system, GameObject prefab, Transform parent, string instanceName) {
+        public static Processor DeployInstance<TSystem>(Type processorType, ISystem system, GameObject prefab, Transform parent, string instanceName)
+        where TSystem : ISystem {
             GameObject instance = prefab != null ? UnityEngine.Object.Instantiate(prefab, parent) : null;
 
             if (prefab != null) {
@@ -30,43 +32,21 @@ namespace PPS {
                 instance.transform.parent = parent;
             }
 
-            // Deploy profile with extra parameters.
-            Type[] profileConstructorTypes = new Type[] { typeof(GameObject) };
-            object[] profileConstructorParams = new object[] { instance };
-            Profile profile = profileType.GetConstructor(profileConstructorTypes)?.Invoke(profileConstructorParams) as Profile;
-
-            if (profile == null) {
-                // Try again adding System as the first constructor parameter.
-                profileConstructorTypes = new Type[] { systemType, typeof(GameObject) };
-                profileConstructorParams = new object[] { system, instance };
-                profile = profileType.GetConstructor(profileConstructorTypes)?.Invoke(profileConstructorParams) as Profile;
-            }
-
             // Deploy processor.
-            Type[] processorConstructorTypes = { systemType, profileType };
-            object[] processorConstructorParams = { system, profile };
-            Processor processor = processorType.GetConstructor(processorConstructorTypes)?.Invoke(processorConstructorParams) as Processor;
+            Type[] processorConstructorTypes = { system.GetType(), typeof(GameObject) };
+            object[] processorConstructorParams = { system, instance };
+            Processor<TSystem> processor = processorType.GetConstructor(processorConstructorTypes)?.Invoke(processorConstructorParams) as Processor<TSystem>;
 
-            if (processor == null || profile == null)
+            if (processor == null)
                 throw new Exception("Could not instantiate the instance's Processor or Profile from type.");
 
             return processor;
         }
-
-        /// <summary>
-        /// DeployInstance implementation with generic types.
-        /// </summary>
-        public static TProcessor DeployInstance<TProcessor, TProfile>(Type systemType, ISystem system, GameObject prefab, Transform parent, string instanceName)
-        where TProcessor : Processor
-        where TProfile : Profile {
-            return (TProcessor)DeployInstance(typeof(TProcessor), typeof(TProfile), systemType, system, prefab, parent, instanceName);
-        }
     }
 
     [Serializable]
-    public abstract class System<TProcessor, TProfile> : MonoBehaviour, ISystem
-    where TProcessor : Processor
-    where TProfile : Profile {
+    public abstract class System<TProcessor> : MonoBehaviour, ISystem
+    where TProcessor : Processor {
 
         [SerializeField]
         private bool deployOnStartup;
@@ -77,8 +57,6 @@ namespace PPS {
         private bool isReady;
         [SerializeField]
         private GameObject instancePrefab;
-        [SerializeField]
-        private ScriptableObject constants;
         protected List<TProcessor> instances = new List<TProcessor>();
         private List<ISystem> subsystems = new List<ISystem>();
 
@@ -88,7 +66,6 @@ namespace PPS {
         public string NewInstanceName => $"{GetType().Name} instance #{this.instances.Count + 1}";
         public Transform Transform => transform; // Thanks, Unity.
         public GameObject InstancePrefab => this.instancePrefab;
-        public ScriptableObject Constants => this.constants;
 
         public event EventHandler<Type> InstanceDeployed;
         public event EventHandler<Type> InstanceRemoved;
@@ -124,7 +101,12 @@ namespace PPS {
         protected virtual void DeploySubsystems() { }
 
         public TProcessor DeployInstance() {
-            TProcessor processor = System.DeployInstance<TProcessor, TProfile>(GetType(), this, this.instancePrefab, transform, NewInstanceName);
+            MethodInfo deployMethod = typeof(System).GetMethod("DeployInstance")?.MakeGenericMethod(GetType());
+            TProcessor processor = (TProcessor)deployMethod?.Invoke(null, new object[] { typeof(TProcessor), this, this.instancePrefab, transform, NewInstanceName });
+
+            if (processor == null)
+                throw new Exception($"Could not deploy new {GetType()} system instance.");
+
             this.instances.Add(processor);
 
             if (this.isReady)
@@ -140,10 +122,9 @@ namespace PPS {
             InstanceRemoved?.Invoke(processor, GetType());
         }
 
-        protected void DeploySubsystem<TSubsystem, TSProcessor, TSProfile>(ref TSubsystem subsystem)
+        protected void DeploySubsystem<TSubsystem, TSProcessor>(ref TSubsystem subsystem)
         where TSProcessor : Processor
-        where TSProfile : Profile
-        where TSubsystem : Subsystem<TSProcessor, TSProfile> {
+        where TSubsystem : Subsystem<TSProcessor> {
             // Only construct subsystem if it has not been serialized.
             if (subsystem == null)
                 subsystem = typeof(TSubsystem).GetConstructor(new Type[] { })?.Invoke(new object[] { }) as TSubsystem;
@@ -214,9 +195,8 @@ namespace PPS {
     }
 
     [Serializable]
-    public abstract class Subsystem<TProcessor, TProfile> : ISystem
-    where TProcessor : Processor
-    where TProfile : Profile {
+    public abstract class Subsystem<TProcessor> : ISystem
+    where TProcessor : Processor {
 
         [SerializeField]
         private bool deployOnStartup;
@@ -227,8 +207,6 @@ namespace PPS {
         private bool isReady;
         [SerializeField]
         private GameObject instancePrefab;
-        [SerializeField]
-        private readonly ScriptableObject constants;
         private ISystem parent;
         protected readonly List<TProcessor> instances = new List<TProcessor>();
 
@@ -239,7 +217,6 @@ namespace PPS {
         public Transform Transform { get; set; }
         public GameObject InstancePrefab => this.instancePrefab;
         public List<TProcessor> Instances => this.instances;
-        public ScriptableObject Constants => this.constants;
         public ISystem Parent => this.parent;
 
         public event EventHandler<Type> InstanceDeployed;
@@ -288,11 +265,16 @@ namespace PPS {
             }
         }
 
-        public TProcessor DeployInstance(Type processorType, Type profileType, GameObject instancePrefab = null) {
+        public TProcessor DeployInstance(Type processorType, GameObject instancePrefab = null) {
             if (Transform == null)
                 throw new InvalidOperationException($"Attempted to Deploy an instance of Subsystem {GetType().Name} before it has been initialised.");
 
-            TProcessor processor = (TProcessor)System.DeployInstance(processorType, profileType, GetType(), this, instancePrefab, Transform, NewInstanceName);
+            MethodInfo deployMethod = typeof(System).GetMethod("DeployInstance")?.MakeGenericMethod(GetType());
+            TProcessor processor = (TProcessor)deployMethod?.Invoke(null, new object[] { typeof(TProcessor), this, instancePrefab ?? this.instancePrefab, Transform, NewInstanceName });
+
+            if (processor == null)
+                throw new Exception($"Could not deploy new {GetType()} system instance.");
+
             this.instances.Add(processor);
 
             if (this.isReady)
@@ -304,7 +286,7 @@ namespace PPS {
         }
 
         public TProcessor DeployInstance() {
-            return DeployInstance(typeof(TProcessor), typeof(TProfile), this.instancePrefab);
+            return DeployInstance(typeof(TProcessor), this.instancePrefab);
         }
 
         public void RemoveInstance(Processor processor) {
