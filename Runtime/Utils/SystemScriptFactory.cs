@@ -44,7 +44,7 @@ public static class SystemScriptFactory {
                 "namespace SomeNamespace {\n" +
                 "\n" +
                 "    [Serializable]\n" +
-                "    public class NewSubsystem : Subsystem<NewProcessor, NewProfile> {\n" +
+                "    public class NewSubsystem : PPS.Subsystem<NewProcessor> {\n" +
                 "\n" +
                 "        /// <summary>\n" +
                 "        /// Serializable instance list.\n" +
@@ -53,8 +53,7 @@ public static class SystemScriptFactory {
                 "        private List<NewProcessor> newProcessorList;\n" +
                 "\n" +
                 "        /// <summary>\n" +
-                "        /// Subsystems are serialized, therefore they are initialised through Awake." +
-                "\n" +
+                "        /// Subsystems are serialized, therefore they are initialised through Awake.\n" +
                 "        /// </summary>\n" +
                 "        public override void Awake(Transform transform, ISystem parent) {\n" +
                 "            base.Awake(transform, parent);\n" +
@@ -78,7 +77,7 @@ public static class SystemScriptFactory {
                 "namespace SomeNamespace { \n" +
                 "\n" +
                 "    [Serializable]\n" +
-                "    public class NewSystem : System<NewProcessor, NewProfile> {\n" +
+                "    public class NewSystem : System<NewProcessor> {\n" +
                 "\n" +
                 "        /// <summary>\n" +
                 "        /// Serializable instance list.\n" +
@@ -107,17 +106,13 @@ public static class SystemScriptFactory {
                 "namespace SomeNamespace { \n" +
                 "\n" +
                 "    [Serializable]\n" +
-                "    public class NewProcessor : Processor<" +systemName+", NewProfile> {\n" +
+                "    public class NewProcessor : Processor<" +systemName+"> {\n" +
                 "\n" +
-                "        /// <summary>\n" +
-                "        /// Unity 2019 does not serialize generics. For that reason, we convert the generic\n" +
-                "        /// to the specific type that we want to serialize here.\n" +
-                "        /// </summary>\n" +
                 "        [SerializeField]\n" +
-                "        private NewProfile newProfile;\n" +
+                "        private NewProfile profile;\n" +
                 "\n" +
-                "        public NewProcessor(" + systemName+" system, NewProfile profile) : base(system, profile) {\n" +
-                "            this.newProfile = this.profile;\n" +
+                "        public NewProcessor(" + systemName+" system, GameObject instance) : base(system, instance) {\n" +
+                "            this.profile = new NewProfile(GameObject);\n" +
                 "        }\n" +
                 "    }\n" +
                 "}",

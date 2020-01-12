@@ -38,7 +38,8 @@ namespace PPS {
             Processor<TSystem> processor = processorType.GetConstructor(processorConstructorTypes)?.Invoke(processorConstructorParams) as Processor<TSystem>;
 
             if (processor == null)
-                throw new Exception("Could not instantiate the instance's Processor or Profile from type.");
+                throw new Exception($"Could not instantiate the instance's Processor from type {processorType}.\n" +
+                                    $"Make sure the class has the correct instance constructor params (TSystem, GameObject).");
 
             return processor;
         }
