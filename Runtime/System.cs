@@ -271,7 +271,7 @@ namespace PPS {
                 throw new InvalidOperationException($"Attempted to Deploy an instance of Subsystem {GetType().Name} before it has been initialised.");
 
             MethodInfo deployMethod = typeof(System).GetMethod("DeployInstance")?.MakeGenericMethod(GetType());
-            TProcessor processor = (TProcessor)deployMethod?.Invoke(null, new object[] { typeof(TProcessor), this, instancePrefab ?? this.instancePrefab, Transform, NewInstanceName });
+            TProcessor processor = (TProcessor)deployMethod?.Invoke(null, new object[] { processorType, this, instancePrefab ?? this.instancePrefab, Transform, NewInstanceName });
 
             if (processor == null)
                 throw new Exception($"Could not deploy new {GetType()} system instance.");
