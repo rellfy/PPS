@@ -97,8 +97,8 @@ namespace PPS {
         /// <summary>
         /// Since unity 2019 does not serialise generics, it is needed to provide a wrapper type in the class that inherits from this one.
         /// </summary>
-        protected abstract void UpdateSerializableInstances(object sender, Type instanceType);
-
+        protected virtual void UpdateSerializableInstances(object sender, Type instanceType) { }
+        
         protected virtual void DeploySubsystems() { }
 
         public TProcessor DeployInstance() {
