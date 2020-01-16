@@ -33,7 +33,7 @@ namespace PPS {
         /// Processor.Start is called when its system has been fully initialised
         /// in respect to subsystems and dependencies and is ready to operate.
         /// </summary>
-        public virtual void Start() { }
+        public virtual void SetReady() { }
 
         public virtual void Update() {
             // Reverse loop due to possible Processor disposal.

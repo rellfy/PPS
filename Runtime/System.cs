@@ -16,6 +16,7 @@ namespace PPS {
         event EventHandler<Type> InstanceRemoved;
         event EventHandler Ready;
         void RemoveInstance(Processor processor);
+        void AddInstance(Processor processor);
     }
 
     internal static class System {
@@ -90,7 +91,7 @@ namespace PPS {
             Ready?.Invoke(this, null);
 
             foreach (TProcessor processor in this.instances) {
-                processor.Start();
+                processor.SetReady();
             }
         }
 
@@ -111,11 +112,31 @@ namespace PPS {
             this.instances.Add(processor);
 
             if (this.isReady)
-                processor.Start();
+                processor.SetReady();
 
             InstanceDeployed?.Invoke(processor, GetType());
 
             return processor;
+        }
+
+        public TProcessor DeployInstance(Type processorType, GameObject instancePrefab = null) {
+            MethodInfo deployMethod = typeof(System).GetMethod("DeployInstance")?.MakeGenericMethod(GetType());
+            TProcessor processor = (TProcessor)deployMethod?.Invoke(null, new object[] { processorType, this, instancePrefab ?? this.instancePrefab, Transform, NewInstanceName });
+
+            if (processor == null)
+                throw new Exception($"Could not deploy new {GetType()} system instance.");
+
+            AddInstance(processor);
+
+            if (this.isReady)
+                processor.SetReady();
+
+            return processor;
+        }
+
+        public void AddInstance(Processor processor) {
+            this.instances.Add((TProcessor)processor);
+            InstanceDeployed?.Invoke(processor, GetType());
         }
 
         public void RemoveInstance(Processor processor) {
@@ -262,7 +283,7 @@ namespace PPS {
             Ready?.Invoke(this, null);
 
             foreach (TProcessor processor in this.instances) {
-                processor.Start();
+                processor.SetReady();
             }
         }
 
@@ -276,18 +297,21 @@ namespace PPS {
             if (processor == null)
                 throw new Exception($"Could not deploy new {GetType()} system instance.");
 
-            this.instances.Add(processor);
+            AddInstance(processor);
 
             if (this.isReady)
-                processor.Start();
-
-            InstanceDeployed?.Invoke(processor, GetType());
+                processor.SetReady();
 
             return processor;
         }
 
         public TProcessor DeployInstance() {
             return DeployInstance(typeof(TProcessor), this.instancePrefab);
+        }
+
+        public void AddInstance(Processor processor) {
+            this.instances.Add((TProcessor)processor);
+            InstanceDeployed?.Invoke(processor, GetType());
         }
 
         public void RemoveInstance(Processor processor) {
