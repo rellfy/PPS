@@ -126,8 +126,6 @@ namespace PPS {
             if (processor == null)
                 throw new Exception($"Could not deploy new {GetType()} system instance.");
 
-            AddInstance(processor);
-
             if (this.isReady)
                 processor.SetReady();
 
@@ -296,8 +294,6 @@ namespace PPS {
 
             if (processor == null)
                 throw new Exception($"Could not deploy new {GetType()} system instance.");
-
-            AddInstance(processor);
 
             if (this.isReady)
                 processor.SetReady();

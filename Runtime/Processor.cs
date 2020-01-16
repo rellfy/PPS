@@ -98,6 +98,7 @@ namespace PPS {
         protected Processor(TSystem system, GameObject instance) {
             this.gameObject = instance;
             this.system = system;
+            system.AddInstance(this);
         }
 
         ~Processor() {
